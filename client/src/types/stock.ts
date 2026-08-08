@@ -16,10 +16,10 @@ export interface LowStockItem {
 }
 
 export interface CreateStockInput{
-  item_id: number;
-  warehouse_id: number;
+  item_id: number| "";
+  warehouse_id: number| "";
   supplier_id: number | null;
-  quantity: number;
+  quantity: number| "";
   movement_type: string;
 }
 export interface StockMovementTableProps {
@@ -27,4 +27,19 @@ export interface StockMovementTableProps {
 }
 export interface CreateMovementProps{
   onMovementAdded:() => void;
+}
+export interface Item {
+  id: number;
+  name: string;
+  sku: string;
+}
+
+export interface Warehouse {
+  id: number;
+  name: string;
+}
+
+export interface Supplier {
+  id: number;
+  name: string;
 }

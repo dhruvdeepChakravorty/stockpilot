@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,8 +7,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { CreateMovementProps, CreateStockInput } from "@/types/stock";
-import { createStockMovement } from "@/api/stockApi";
+import type {
+  CreateMovementProps,
+  CreateStockInput,
+  Item,
+  Supplier,
+  Warehouse,
+} from "@/types/stock";
+import {
+  createStockMovement,
+  getAllItems,
+  getAllSuppliers,
+  getAllWarehouses,
+} from "@/api/stockApi";
 import { toast } from "sonner";
 
 export const CreateStockMovementDialog = ({
@@ -22,17 +33,70 @@ export const CreateStockMovementDialog = ({
     quantity: 0,
     movement_type: "restock",
   });
+
+  const [items, setItems] = useState<Item[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const results = await Promise.allSettled([
+        getAllItems(),
+        getAllWarehouses(),
+        getAllSuppliers(),
+      ]);
+
+      if (results[0].status === "fulfilled") {
+        setItems(results[0].value);
+      } else {
+        console.error("Failed to fetch items:", results[0].reason);
+        toast.error("Failed to load items");
+      }
+
+      if (results[1].status === "fulfilled") {
+        setWarehouses(results[1].value);
+      } else {
+        console.error("Failed to fetch warehouses:", results[1].reason);
+        toast.error("Failed to load warehouses");
+      }
+
+      if (results[2].status === "fulfilled") {
+        setSuppliers(results[2].value);
+      } else {
+        console.error("Failed to fetch suppliers:", results[2].reason);
+        toast.error("Failed to load suppliers");
+      }
+    };
+    fetchOptions();
+  }, []);
+  const numericFields = ["item_id", "warehouse_id", "supplier_id", "quantity"];
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
+
+    let processedValue: string | number | null = value;
+
+    if (numericFields.includes(name)) {
+      processedValue =
+        value === "" ? (name === "supplier_id" ? null : "") : Number(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
-     [name]: e.target.type === "number" ? Number(value) : value,
+      [name]: processedValue,
     }));
   };
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    if (
+      formData.item_id === "" ||
+      formData.warehouse_id === "" ||
+      formData.quantity === ""
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
     try {
       await createStockMovement(formData);
       onMovementAdded();
@@ -54,36 +118,54 @@ export const CreateStockMovementDialog = ({
 
           <form onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="item_id">Item ID</label>
-              <input
+              <label htmlFor="item_id">Items</label>
+              <select
                 id="item_id"
                 name="item_id"
-                type="number"
                 value={formData.item_id}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select an item</option>
+                {items.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.sku})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
-              <label htmlFor="warehouse_id">Warehouse ID</label>
-              <input
+              <label htmlFor="warehouse_id">Warehouses</label>
+              <select
                 id="warehouse_id"
                 name="warehouse_id"
-                type="number"
                 value={formData.warehouse_id}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select a Warehouse</option>
+                {warehouses.map((warehouse) => (
+                  <option key={warehouse.id} value={warehouse.id}>
+                    {warehouse.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
-              <label htmlFor="supplier_id">Supplier ID (optional)</label>
-              <input
+              <label htmlFor="supplier_id">Supplier (optional)</label>
+              <select
                 id="supplier_id"
                 name="supplier_id"
-                type="number"
                 value={formData.supplier_id ?? ""}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select a Supplier</option>
+                {suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.id}>
+                    {supplier.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
