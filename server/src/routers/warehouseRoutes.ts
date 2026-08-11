@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { getAllWarehouses } from "../controllers/warehouseController";
+import {
+  createWarehouse,
+  getAllWarehouses,
+} from "../controllers/warehouseController";
 const router = Router();
 
-router.get('/',getAllWarehouses)
-
+router.get("/", getAllWarehouses);
+router.post("/", createWarehouse);
 export default router;
