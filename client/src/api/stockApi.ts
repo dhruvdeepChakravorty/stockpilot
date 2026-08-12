@@ -16,7 +16,7 @@ export const getAllMovements = async (): Promise<StockMovement[]> => {
 };
 
 export const getLowStock = async (): Promise<LowStockItem[]> => {
-  const response = await axios.get<LowStockItem[]>(`${BASE_URL}/low`);
+  const response = await axios.get<LowStockItem[]>(`${BASE_URL}/stock/low`);
   return response.data;
 };
 

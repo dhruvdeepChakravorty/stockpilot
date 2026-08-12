@@ -67,8 +67,10 @@ export const CreateStockMovementDialog = ({
         toast.error("Failed to load suppliers");
       }
     };
-    fetchOptions();
-  }, []);
+    if (isOpen) {
+      fetchOptions();
+    }
+  }, [isOpen]);
   const numericFields = ["item_id", "warehouse_id", "supplier_id", "quantity"];
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -101,6 +103,7 @@ export const CreateStockMovementDialog = ({
       await createStockMovement(formData);
       onMovementAdded();
       toast.success("Movement Added Successfully");
+      setIsOpen(false);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
       console.error(error);

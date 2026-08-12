@@ -6,27 +6,34 @@ import { StockMovementTable } from "./components/stockMovements";
 import { Toaster } from "@/components/ui/sonner";
 import type { StockMovement } from "./types/stock";
 import { getAllMovements } from "./api/stockApi";
+import { CreateItemDialog } from "./components/CreateItemDialog";
+import { CreateSupplierDialog } from "./components/CreateSupplierDialog";
+import { CreateWarehouseDialog } from "./components/CreateWarehouseDialog";
 
 function App() {
-  const[movements,setMovements]=useState<StockMovement[]>([])
+  const [movements, setMovements] = useState<StockMovement[]>([]);
   const fetchMovements = async () => {
-      try {
-        const data = await getAllMovements();
-        setMovements(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    try {
+      const data = await getAllMovements();
+      setMovements(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    useEffect(()=>{
-      fetchMovements();
-    },[]);
+  useEffect(() => {
+    fetchMovements();
+  }, []);
   return (
     <div>
       <Toaster />
       <LowStockDialog />
-      <CreateStockMovementDialog onMovementAdded={fetchMovements}/>
-      <StockMovementTable  movements={movements} />
+      <CreateStockMovementDialog onMovementAdded={fetchMovements} />
+      <CreateItemDialog />
+      <CreateSupplierDialog/>
+      <CreateWarehouseDialog/>
+      <StockMovementTable movements={movements} />
+      
     </div>
   );
 }
