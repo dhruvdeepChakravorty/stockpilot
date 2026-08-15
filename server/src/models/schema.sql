@@ -3,6 +3,7 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL UNIQUE,
         address TEXT NOT NULL,
+        deleted_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW ()
     );
 
@@ -12,6 +13,7 @@ CREATE TABLE
         name VARCHAR(100) NOT NULL,
         sku VARCHAR(50) UNIQUE NOT NULL, --unique code for item
         reorder_threshold INTEGER NOT NULL DEFAULT 0,
+        deleted_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW ()
     );
 
@@ -21,6 +23,7 @@ CREATE TABLE
         name VARCHAR(100) NOT NULL UNIQUE,
         address TEXT NOT NULL,
         phone_no VARCHAR(20),
+        deleted_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW ()
     );
 
